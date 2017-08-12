@@ -7,6 +7,7 @@ const http = require('http');
  * Temporary implementation of the server.
  *
  * @TODO: Replace with Express or something similar.
+ * @TODO: Parse querystring for options.
  */
 http.createServer((request, response) => {
 
