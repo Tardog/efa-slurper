@@ -1,16 +1,31 @@
 'use strict';
 
-const EfaRequest = require('./lib/EfaRequest');
+const TimetableRequest = require('./lib/TimetableRequest');
 const http = require('http');
 
+/**
+ * Temporary implementation of the server.
+ *
+ * @TODO: Replace with Express or something similar.
+ */
 http.createServer((request, response) => {
 
-    let vrrEfaRequest = new EfaRequest('efa.vrr.de');
+    let timetableRequestVrr = new TimetableRequest('efa.vrr.de');
 
-    vrrEfaRequest.sendRequest('Bochum', 'Hbf', 'Dortmund', 'Hbf', (body) => {
+    timetableRequestVrr.sendRequest('Bochum', 'Hbf', (payload) => {
+        let output;
+
         response.writeHead(200, {'content-type': 'text/html'});
-        response.end(body);
+
+        if (payload.statusCode === 200) {
+            output = payload.body;
+        } else {
+            output = '<p>An error occured! The returned status code was: ' + payload.statusCode + '</p>'
+        }
+
+        response.end(output);
     });
 
 }).listen(8080, '127.0.0.1');
-console.log('Server running…');
+
+console.log('Server ready');
