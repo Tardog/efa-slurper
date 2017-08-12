@@ -1,19 +1,29 @@
 'use strict';
 
-const TimetableRequest = require('./lib/TimetableRequest');
 const http = require('http');
+const url = require('url');
+const querystring = require('querystring');
+const TimetableRequest = require('./lib/TimetableRequest');
+
+const defaultCity = 'Bochum';
+const defaultStation = 'Hbf';
 
 /**
  * Temporary implementation of the server.
  *
  * @TODO: Replace with Express or something similar.
- * @TODO: Parse querystring for options.
  */
 http.createServer((request, response) => {
 
     let timetableRequestVrr = new TimetableRequest('efa.vrr.de');
 
-    timetableRequestVrr.sendRequest('Bochum', 'Hbf', (payload) => {
+    let urlObj = url.parse(request.url);
+    let query = querystring.parse(urlObj.query);
+
+    let city = query.city ? query.city : defaultCity;
+    let station = query.station ? query.station : defaultStation;
+
+    timetableRequestVrr.sendRequest(city, station, (payload) => {
         let output;
 
         response.writeHead(200, {'content-type': 'text/html'});
