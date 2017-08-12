@@ -4,6 +4,6 @@
     "description": "A node.js wrapper for the EFA (Elektronische Fahrplan-Auskunft) API.",
     "main": "index.js",
     "dependencies": {
-        "htmlparser2": "^3.9.2"
+        "cheerio": "^1.0.0-rc.2"
     }
 }
