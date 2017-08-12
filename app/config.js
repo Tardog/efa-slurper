@@ -3,5 +3,6 @@
 module.exports = {
     defaultCity: 'Bochum',
     defaultStation: 'Hbf',
-    efaUrl: 'efa.vrr.de'
+    efaUrl: 'efa.vrr.de',
+    refreshTime: 3000
 }

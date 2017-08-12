@@ -2,7 +2,7 @@
 
 const express = require('express');
 const app = express();
-
+const expressWs = require('express-ws')(app);
 const router = require('./app/router')(app);
 
 app.listen(8080, () => {

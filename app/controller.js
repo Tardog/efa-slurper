@@ -4,27 +4,45 @@ const TimetableRequest = require('../lib/TimetableRequest');
 const config = require('./config');
 
 module.exports = {
-    indexAction: indexAction
+    indexAction: indexAction,
+    refreshAction: refreshAction
 }
 
 function indexAction(req, res) {
-    let timetableRequestVrr = new TimetableRequest(config.efaUrl);
+    res.set('content-type', 'text/html; charset=utf-8');
+    res.status(200);
 
-    let city = req.query.city ? req.query.city : config.defaultCity;
-    let station = req.query.station ? req.query.station : config.defaultStation;
-
-    timetableRequestVrr.sendRequest(city, station, (payload) => {
-        let output;
-
-        if (payload.statusCode === 200) {
-            output = payload.body;
-        } else {
-            output = '<p>An error occured! The returned status code was: ' + payload.statusCode + '</p>'
-        }
-
-        res.set('content-type', 'text/html; charset=utf-8');
-        res.status(200);
-
+    getTimetable(req)
+    .then((output) => {
         res.send(output);
+    }, (error) => {
+        res.send(error);
     });
+}
+
+function refreshAction(ws, req) {
+    ws.on('message', (msg) => {
+        getTimetable(req)
+        .then((output) => {
+            ws.send(output);
+        }, (error) => {
+            ws.send(error);
+        });
+    });
+}
+
+function getTimetable(req) {
+    let timetableRequestVrr = new TimetableRequest(config.efaUrl);
+    let city = req.params.city ? req.params.city : config.defaultCity;
+    let station = req.params.station ? req.params.station : config.defaultStation;
+
+    return new Promise((resolve, reject) => {
+        timetableRequestVrr.sendRequest(city, station, (payload) => {
+            if (payload.statusCode === 200) {
+                resolve(payload.body);
+            } else {
+                reject('<p>An error occured! The returned status code was: ' + payload.statusCode + '</p>');
+            }
+        });
+    })
 }
