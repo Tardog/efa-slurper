@@ -1,8 +1,6 @@
-'use strict';
-
 module.exports = {
     defaultCity: 'Bochum',
     defaultStation: 'Hbf',
     efaUrl: 'efa.vrr.de',
-    refreshTimeout: 300
-}
+    refreshTimeout: 3000,
+};
