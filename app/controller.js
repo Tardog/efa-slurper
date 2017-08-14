@@ -1,8 +1,3 @@
-module.exports = {
-    timetableAction: timetableAction,
-    refreshAction: refreshAction,
-};
-
 const url = require('url');
 const TimetableRequest = require('../lib/TimetableRequest');
 const config = require('./config');
@@ -10,7 +5,8 @@ const config = require('./config');
 /**
  * Get timetable results for the given city and station.
  *
- * @param {object} req
+ * @param {string} city
+ * @param {string} station
  *
  * @return {Promise}
  */
@@ -31,8 +27,8 @@ function getTimetable(city, station) {
 /**
  * Display a timetable with parameters from the request.
  *
- * @param {object} req
- * @param {object} res
+ * @param {Request} req
+ * @param {Response} res
  */
 function timetableAction(req, res) {
     res.set('content-type', 'text/html; charset=utf-8');
@@ -44,28 +40,37 @@ function timetableAction(req, res) {
 
     getTimetable(city, station)
         .then((output) => {
-            res.render('timetable', { title: title, body: output});
+            res.render('timetable', { title, body: output });
         }, (error) => {
-            res.render('timetable', { title: title, body: error});
+            res.render('timetable', { title, body: error });
         });
 }
 
-function refreshAction(req) {
+/**
+ * Call the appropriate data request function for the current path.
+ * Pass the result to the given callback.
+ *
+ * @param {Request} req
+ * @param {function} callback
+ */
+function refreshAction(req, callback) {
     const requestPath = url.parse(req.headers.referer).pathname;
     const splitPath = requestPath.split('/');
     const city = splitPath[2] !== undefined ? splitPath[2] : config.defaultCity;
     const station = splitPath[3] !== undefined ? splitPath[3] : config.defaultStation;
 
     switch (splitPath[1]) {
-    case 'timetable':
-        getTimetable(city, station)
-            .then((output) => {
-                return output;
-            }, (error) => {
-                return error;
-            });
-        break;
-    default:
-        return '<p>No results found.</p>';
+        case 'timetable':
+            getTimetable(city, station)
+                .then((output) => {
+                    callback(output);
+                }, (error) => {
+                    callback(error);
+                });
     }
 }
+
+module.exports = {
+    timetableAction,
+    refreshAction,
+};

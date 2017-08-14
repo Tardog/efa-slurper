@@ -20,7 +20,8 @@ io.on('connection', (socket) => {
 
     setInterval(() => {
         console.log('Refreshing…');
-        const output = controller.refreshAction(socket.request);
-        io.emit('results', { body: output });
+        controller.refreshAction(socket.request, (output) => {
+            io.emit('results', { body: output });
+        });
     }, config.refreshTimeout);
 });
