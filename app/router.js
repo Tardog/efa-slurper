@@ -3,6 +3,5 @@
 const controller = require('./controller');
 
 module.exports = (app) => {
-    app.get('/:city?/:station?', controller.indexAction);
-    app.ws('/refresh', controller.refreshAction);
+    app.get('/timetable/:city?/:station?', controller.timetableAction);
 }
