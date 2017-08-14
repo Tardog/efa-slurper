@@ -18,7 +18,7 @@ function getTimetable(city, station) {
             if (payload.statusCode === 200) {
                 resolve(payload.body);
             } else {
-                reject('<p>An error occured! The returned status code was: ' + payload.statusCode + '</p>');
+                reject(`<p>An error occured! The returned status code was: ${payload.statusCode}</p>`);
             }
         });
     });
@@ -56,17 +56,19 @@ function timetableAction(req, res) {
 function refreshAction(req, callback) {
     const requestPath = url.parse(req.headers.referer).pathname;
     const splitPath = requestPath.split('/');
-    const city = splitPath[2] !== undefined ? splitPath[2] : config.defaultCity;
-    const station = splitPath[3] !== undefined ? splitPath[3] : config.defaultStation;
 
-    switch (splitPath[1]) {
-        case 'timetable':
-            getTimetable(city, station)
-                .then((output) => {
-                    callback(output);
-                }, (error) => {
-                    callback(error);
-                });
+    if (splitPath[1] === undefined) {
+        callback('Unable to determine action: Invalid referer.');
+    } else if (splitPath[1] === 'timetable') {
+        const city = splitPath[2] !== undefined ? splitPath[2] : config.defaultCity;
+        const station = splitPath[3] !== undefined ? splitPath[3] : config.defaultStation;
+
+        getTimetable(city, station)
+            .then((output) => {
+                callback(output);
+            }, (error) => {
+                callback(error);
+            });
     }
 }
 
