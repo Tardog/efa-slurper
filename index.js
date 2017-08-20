@@ -1,12 +1,12 @@
-const config = require('../app/config');
-const controller = require('../app/controller');
+const config = require('./app/config');
+const controller = require('./app/controller');
 const express = require('express');
 
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-require('../app/router')(app);
+require('./app/router')(app);
 
 // General settings
 app.set('view engine', 'pug');
