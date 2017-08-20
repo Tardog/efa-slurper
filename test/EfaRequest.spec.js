@@ -49,7 +49,7 @@ describe('EfaRequest', () => {
             write.withArgs(querystring.stringify(postData)).calledOnce.should.equal(true);
         });
 
-        it('should call the callback on success', () => {
+        it('should call the callback on success with the correct payload', () => {
             const postData = {
                 foo: 'bar',
             };
@@ -62,6 +62,12 @@ describe('EfaRequest', () => {
             };
 
             const callback = sinon.spy();
+            const responseBody = 'foobar';
+
+            const expectedPayload = {
+                body: responseBody,
+                statusCode: 200
+            };
 
             // Prepare stubs
             let request = new PassThrough();
@@ -73,7 +79,7 @@ describe('EfaRequest', () => {
             };
 
             sinon.stub(response, 'read').callsFake(() => {
-                return '<p>foobar</p>';
+                return responseBody;
             });
 
             this.request.callsArgWith(1, response).returns(request);
@@ -85,6 +91,18 @@ describe('EfaRequest', () => {
 
             // Assert
             callback.calledOnce.should.equal(true);
+            callback.getCall(0).args[0].should.eql(expectedPayload);
+        });
+    });
+
+    describe('sanitize', () => {
+        it('should remove any HTML not on the whitelist from a string', () => {
+            const dirtyInput = '<script>danger();</script><p>Foobar</p>';
+            const expected = 'Foobar';
+
+            let actual = testEfaRequest.sanitize(dirtyInput);
+
+            actual.should.equal(expected);
         });
     });
 });
