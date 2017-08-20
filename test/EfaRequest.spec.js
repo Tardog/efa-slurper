@@ -1,5 +1,9 @@
 const chai = require('chai');
 const path = require('path');
+const sinon = require('sinon');
+const http = require('http');
+const PassThrough = require('stream').PassThrough;
+const querystring = require('querystring');
 
 chai.should();
 
@@ -9,42 +13,78 @@ describe('EfaRequest', () => {
     let testEfaRequest;
 
     beforeEach(() => {
+        this.request = sinon.stub(http, 'request');
         testEfaRequest = new EfaRequest('efa.test.de', '/test');
     });
 
+    afterEach(() => {
+        http.request.restore();
+    });
+
     describe('call', () => {
-        const postData = {
-            place_origin: 'Berlin',
-            type_origin: 'stop',
-            name_origin: 'Hbf',
-            place_destination: 'München',
-            type_destination: 'stop',
-            name_destination: 'Hbf',
-            routeType: 'LEASTTIME',
-            changeSpeed: 'normal',
-            itdTripDateTimeDepArr: 'dep',
-            itdTimeHour: '12',
-            itdTimeMinute: '00',
-            itdDateDay: '01',
-            itdDateMonth: '01',
-            itdDateYear: '2017',
-            language: 'de',
-            useRealtime: 1,
-        };
+        it('should send a http request to the given URL/path', () => {
+            const postData = {
+                foo: 'bar'
+            };
 
-        const options = {
-            host: 'efa.test.de',
-            path: '/test/XSLT_TRIP_REQUEST2',
-            method: 'POST',
-            port: 80,
-        };
+            const options = {
+                host: 'efa.test.de',
+                path: '/test/XSLT_TRIP_REQUEST2',
+                method: 'POST',
+                port: 80,
+            };
 
-        const callback = (payload) => {
-            return payload;
-        };
+            const callback = sinon.spy();
 
-        it('should send a request to the given URL and path and run the callback on success', () => {
+            // Prepare the request stub
+            let request = new PassThrough();
+            let write = sinon.spy(request, 'write');
+
+            this.request.returns(request);
+
+            // Run the test
             testEfaRequest.call(options, postData, callback);
+
+            // Assert
+            write.withArgs(querystring.stringify(postData)).calledOnce.should.equal(true);
+        });
+
+        it('should call the callback on success', () => {
+            const postData = {
+                foo: 'bar',
+            };
+
+            const options = {
+                host: 'efa.test.de',
+                path: '/test/XSLT_TRIP_REQUEST2',
+                method: 'POST',
+                port: 80,
+            };
+
+            const callback = sinon.spy();
+
+            // Prepare stubs
+            let request = new PassThrough();
+            let response = new PassThrough();
+
+            response.statusCode = 200;
+            response.headers = {
+                'content-type': 'text/html'
+            };
+
+            sinon.stub(response, 'read').callsFake(() => {
+                return '<p>foobar</p>';
+            });
+
+            this.request.callsArgWith(1, response).returns(request);
+
+            // Run the test
+            testEfaRequest.call(options, postData, callback);
+            response.emit('readable');
+            response.emit('end');
+
+            // Assert
+            callback.calledOnce.should.equal(true);
         });
     });
 });
