@@ -11,7 +11,7 @@ const config = require('./config');
  * @return {Promise}
  */
 function getTimetable(city, station) {
-    const timetableRequestVrr = new TimetableRequest(config.efaUrl);
+    const timetableRequestVrr = new TimetableRequest(config.efaUrl, config.efaPathSuffix);
 
     return new Promise((resolve, reject) => {
         timetableRequestVrr.sendRequest(city, station, (payload) => {
