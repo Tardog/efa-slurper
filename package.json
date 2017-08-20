@@ -2,7 +2,7 @@
     "name": "node-efa",
     "version": "1.0.0",
     "description": "A node.js wrapper for the EFA (Elektronische Fahrplan-Auskunft) API.",
-    "main": "public/index.js",
+    "main": "index.js",
     "dependencies": {
         "cheerio": "^1.0.0-rc.2",
         "express": "^4.15.4",
@@ -11,10 +11,18 @@
         "socket.io": "^2.0.3"
     },
     "devDependencies": {
+        "chai": "^4.1.1",
         "eslint": "^4.4.1",
         "eslint-config-airbnb-base": "^11.3.1",
         "eslint-plugin-import": "^2.7.0",
-        "gulp": "^3.9.1",
-        "gulp-sass": "^3.1.0"
+        "gulp-sass": "^3.1.0",
+        "istanbul": "^0.4.5",
+        "mocha": "^3.5.0"
+    },
+    "scripts": {
+        "start": "node index.js",
+        "test": "mocha",
+        "build-css": "./node_modules/.bin/node-sass --include-path scss public/sass/styles.scss public/css/styles.css --output-style compressed",
+        "watch-css": "nodemon -e scss -x \"npm run build-css\""
     }
 }
