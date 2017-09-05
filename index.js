@@ -10,7 +10,7 @@ require('./app/router')(app);
 
 // General settings
 app.set('view engine', 'pug');
-app.set('title', 'Node EFA');
+app.set('title', 'EFA Slurper');
 
 app.use(express.static('public'));
 app.disable('x-powered-by');
